@@ -1,8 +1,9 @@
 #include "SteeringBehavior.h"
 
-void SteeingBehavior::getForce(vec2 p1Pos)
+vec2 SteeingBehavior::getForce(vec2 targetPos)
 {
-	float force;
-	force = normalize((owner.position - p1Pos)) * owner.maxVelocity;
-
+	owner.position = { owner.x, owner.y };
+	vec2 force;
+	vec2 targetVelocity = glm::normalize((targetPos - owner.position));
+	return force = targetVelocity * owner.maxVelocity;
 }

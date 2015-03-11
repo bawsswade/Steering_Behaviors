@@ -3,20 +3,20 @@
 
 #include "Tank.h"
 
-static class SteeingBehavior
+class SteeingBehavior
 {
 public:
-	AITank owner;
+	AITank owner;	//	behavior's AI
 
-	virtual void getForce(vec2 p1) = 0;
+	virtual vec2 getForce(vec2 targetPos);
 };
 
 class Seek : SteeingBehavior
 {
-public:
-	AITank target;
+public: 
+	//AITank target;
 
-	void getForce();
+	vec2 getForce(vec2 targetPos){ vec2 test; return test;};
 };
 
 #endif
