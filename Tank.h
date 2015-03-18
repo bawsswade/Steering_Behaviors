@@ -20,7 +20,7 @@ public:
 	const vec2 MAX_FORCE = { .3, .3 };
 	const vec2 nMAX_FORCE = { -.3, -.3 };
 	//float x, y;
-	float speed = 500;
+	float speed = 50;
 
 	virtual void Update(float deltaTime, vec2 move){};
 	~Tank(){};

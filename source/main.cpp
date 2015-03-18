@@ -14,7 +14,7 @@ int main( int argc, char* argv[] )
 	SetBackgroundColour(SColour(0x00, 0x00, 0x00, 0xFF));
 
 	float deltaTime = GetDeltaTime();
-	const int numAIs = 10;
+	const int numAIs = 50;
 
 	//	behavior pointers to different behaviors
 	AITank p1;
@@ -22,8 +22,8 @@ int main( int argc, char* argv[] )
 	for (int i = 0; i < numAIs; i++)
 	{
 		arr_tank[i] = new AITank;
-		arr_tank[i]->id = CreateSprite("./images/ai.png", 20.0f, 30.0f, true);
-		arr_tank[i]->position = { 720 / (i +1), 720 / (i +1)};
+		arr_tank[i]->id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
+		arr_tank[i]->position = { 720 / 2, 720 / 2};
 		/*arr_tank[i]->x = 720 / (i+1);
 		arr_tank[i]->y = 720 / (i+1);*/
 	}
@@ -34,18 +34,19 @@ int main( int argc, char* argv[] )
 	SteeringBehavior* p_wander = new Wander;
 	vec2 move;
 
-	p1.id = CreateSprite("./images/ai.png", 20.0f, 30.0f, true);
+	p1.id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
 	p1.position = { 720 / 2, 720 / 2 };
 	/*p1.x = 720 / 2;
 	p1.y = 720 / 2;*/
 
-	p2.id = CreateSprite("./images/ai.png", 20.0f, 30.0f, true);
+	p2.id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
 	p2.position = { 720 / 4, 720/4 };
 	/*p2.x = 720 / 4;
 	p2.y = 720 / 4;*/
 
 	float velocity = 500;
 	bool SorF = 1;
+	srand(time(NULL));
     //***********************Game Loop************************
 	do
 	{
@@ -84,7 +85,7 @@ int main( int argc, char* argv[] )
 		//	seek behavior
 		for (int i = 0; i < numAIs; i++)
 		{
-			//DrawSprite(arr_tank[i]->id);
+			DrawSprite(arr_tank[i]->id);
 
 			if (SorF)
 				move = p_wander->getForce(&p1 ,arr_tank[i]);
@@ -95,11 +96,28 @@ int main( int argc, char* argv[] )
 			//	update p2 with seek movement
 			arr_tank[i]->Update(deltaTime, move);
 
+			if (arr_tank[i]->position.x > 720.0f || arr_tank[i]->position.x <= 0.0f ||
+				arr_tank[i]->position.y > 720.0f || arr_tank[i]->position.y <= 0.0f)
+			{
+				//arr_tank[i]->position = { 720 / 2, 720 / 2 };
+				arr_tank[i] ->velocity *= -1;
+				//p_wander->Reset(arr_tank[i]);
+			}
+
+			if (p2.position.x > 720.0f || p2.position.x <= 0 || p2.position.y > 720.0f || p2.position.y <= 0)
+				p2.velocity = { 1, 0 };
+
 			//	move shit
 			MoveSprite(arr_tank[i]->id, arr_tank[i]->position.x, arr_tank[i]->position.y);
 		}
 
 		p_wander->getForce(&p1, &p2);
+		if (p2.position.x > 720.0f || p2.position.x <= 0 || p2.position.y > 720.0f || p2.position.y <= 0)
+		{
+			p2.position = { 720 / 2, 720 / 2 };
+			p2.velocity = { 1, 0 };
+		}
+		cout << p2.velocity.x << ", " << p2.velocity.y << endl;
 		//p_seek->getForce(&p1, &p2);
 		p2.Update(deltaTime, move);
 		MoveSprite(p2.id, p2.position.x, p2.position.y);

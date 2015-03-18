@@ -12,6 +12,7 @@ void AITank::Update(float vel, vec2 dirMove)
 
 	this->position.x += (this->velocity.x * vel * speed);
 	this->position.y += (this->velocity.y * vel * speed);
+
 	//	trying to rotate as it moves: keeps adding on to curr deg. how to reset?
 	/*float deg = atan(this->x, this->y)*(180.0f / 3.1415);
 	RotateSprite(this->id, deg);*/
