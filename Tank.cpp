@@ -1,11 +1,18 @@
 #include "Tank.h"
+#include <iostream>
+#include "glm/gtx/string_cast.hpp"
 
-void AITank::Update(float vel, vec2 move)
+using std::cout;
+
+void AITank::Update(float vel, vec2 dirMove)
 {
-	this->position += (move * vel);
-	//this->position *= vel;
-	this->x += (move[0] * vel * 5);
-	//this->x *= vel;
-	this->y += (move[1]* vel * 5);
-	//this->y *= vel;
+	//this->position += (dirMove * vel);
+
+	//std::cout << glm::to_string(dirMove) << "\n";
+
+	this->position.x += (this->velocity.x * vel * speed);
+	this->position.y += (this->velocity.y * vel * speed);
+	//	trying to rotate as it moves: keeps adding on to curr deg. how to reset?
+	/*float deg = atan(this->x, this->y)*(180.0f / 3.1415);
+	RotateSprite(this->id, deg);*/
 }

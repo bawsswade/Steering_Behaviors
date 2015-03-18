@@ -1,7 +1,9 @@
 #ifndef _TANK_H_
 #define _TANK_H_
 
+#include "AIE.h"
 #include <glm\glm.hpp>
+#include <math.h>
 #include <glm\gtc\matrix_transform.hpp>
 
 using namespace glm;
@@ -13,9 +15,12 @@ public:
 	//mat3 position;
 	unsigned int id;
 	vec2 position;
-	vec2 velocity = { 10.0f, 10.0f };		//	current velocity
+	vec2 velocity = { 0.0f, 1.0f };		//	current velocity
 	vec2 maxVelocity = { 500.0f, 500.0f };
-	float x, y;
+	const vec2 MAX_FORCE = { .3, .3 };
+	const vec2 nMAX_FORCE = { -.3, -.3 };
+	//float x, y;
+	float speed = 500;
 
 	virtual void Update(float deltaTime, vec2 move){};
 	~Tank(){};
