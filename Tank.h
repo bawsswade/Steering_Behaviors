@@ -22,7 +22,7 @@ public:
 	vec2 maxVelocity = { 100.0f, 100.0f };
 	const vec2 MAX_FORCE = { .2, .2 };
 	const vec2 nMAX_FORCE = { -.2, -.2 };
-	float speed = 10;
+	float speed = 50;
 
 	//	for wander
 	const int CIRCLE_DIST = 10;
@@ -31,8 +31,9 @@ public:
 	const int jitter = 100;					//	vector off of circle target
 
 	//	for flocking
-	float flockRadius = 100.0f;
-	bool inCircle = false;
+	//float flockRadius = 100.0f;
+	bool inAllignCircle = false;
+	bool inCohCircle = false;
 	//int neighborhood;
 
 	virtual void Update(float deltaTime, vec2 move){};

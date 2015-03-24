@@ -14,7 +14,7 @@ int main( int argc, char* argv[] )
 	SetBackgroundColour(SColour(0x00, 0x00, 0x00, 0xFF));
 
 	float deltaTime = GetDeltaTime();
-	const int numAIs = 10;
+	const int numAIs = 1;
 
 	//	behavior pointers to different behaviors
 	AITank p1;
@@ -23,7 +23,8 @@ int main( int argc, char* argv[] )
 	{
 		arr_tank[i] = new AITank;
 		arr_tank[i]->id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
-		arr_tank[i]->position = { 720 / 2 + i, 720 / 2 + i};
+		//arr_tank[i]->position = { 720 / 2 , 720 / 2 };
+		arr_tank[i]->position = { 10, 10 };
 		/*arr_tank[i]->x = 720 / (i+1);
 		arr_tank[i]->y = 720 / (i+1);*/
 	}
@@ -34,7 +35,9 @@ int main( int argc, char* argv[] )
 	SteeringBehavior* p_wander = new Wander;
 	SteeringBehavior* p_pursue = new Pursue;
 	SteeringBehavior* p_evade = new Evade;
-	SteeringBehavior* p_allign = new Allignment;
+	SteeringBehavior* p_flock = new Flocking;
+	Flocking* p_allign = new Allignment;
+	Flocking* p_cohesion = new Cohesion;
 	vec2 move;
 
 	p1.id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
@@ -58,7 +61,7 @@ int main( int argc, char* argv[] )
 		float fDeltaT = GetDeltaTime();
 
 		DrawSprite(p1.id);
-		DrawSprite(p2.id);
+		//DrawSprite(p2.id);
 
 		if (IsKeyDown('A'))
 		{
@@ -76,7 +79,8 @@ int main( int argc, char* argv[] )
 		{
 			p1.position.y -= fDeltaT * velocity;
 		}
-		p1.velocity = p1.position;
+		p1.velocity.x = p1.position.x - 359.0f;
+		p1.velocity.y = p1.position.y - 359.0f;
 		p1.velocity = normalize(p1.velocity);
 		if (IsKeyDown(GLFW_KEY_LEFT))
 		{
@@ -86,7 +90,9 @@ int main( int argc, char* argv[] )
 		{
 			SorF = false;
 		}
-		p_allign->GetNeighborCount(&p1, arr_tank);
+		//p_allign->GetNeighborCount(&p1, arr_tank);
+		p_cohesion->GetNeighborCount(&p1, arr_tank);
+
 		//	behavior
 		for (int i = 0; i < numAIs; i++)
 		{
@@ -95,7 +101,8 @@ int main( int argc, char* argv[] )
 			
 			//	only get force for tanks in circle
 					//	- have bool in tank that shows if in circle (possiblity)
-			p_allign->getForce(&p1, arr_tank[i]);
+			//p_allign->getForce(&p1, arr_tank[i]);
+			p_cohesion->getForce(&p1, arr_tank[i]);
 
 			if (arr_tank[i]->position.x > 720.0f || arr_tank[i]->position.x <= 0.0f ||
 				arr_tank[i]->position.y > 720.0f || arr_tank[i]->position.y <= 0.0f)
@@ -109,9 +116,10 @@ int main( int argc, char* argv[] )
 			arr_tank[i]->Update(deltaTime, move);
 			//	move shit
 			MoveSprite(arr_tank[i]->id, arr_tank[i]->position.x, arr_tank[i]->position.y);
+			cout << arr_tank[i]->velocity.x << ", " << arr_tank[i]->velocity.y << endl;
 		}
 
-		// p_wander->getForce(&p1, &p2);
+		//p_wander->getForce(&p1, &p2);
 		//p_seek->getForce(&p1, &p2);
 		if (p2.position.x > 720.0f || p2.position.x <= 0 || p2.position.y > 720.0f || p2.position.y <= 0)
 		{
@@ -119,7 +127,7 @@ int main( int argc, char* argv[] )
 			p2.velocity = { 1, 0 };
 		}
 
-		//cout << p2.velocity.x << ", " << p2.velocity.y << endl;
+		//cout << p1.velocity.x << ", " << p1.velocity.y << endl;
 		//p_seek->getForce(&p1, &p2);
 		p2.Update(deltaTime, move);
 		MoveSprite(p2.id, p2.position.x, p2.position.y);

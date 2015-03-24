@@ -1,18 +1,15 @@
-﻿Build started 3/23/2015 6:04:17 PM.
+﻿Build started 3/24/2015 1:53:11 PM.
      1>Project "C:\Users\wade.gushikuma\Documents\GitHub\Steering_Behaviors\AIE Template.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I./ /I./include/ /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\\" /Fd"obj\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt SteeringBehavior.cpp Tank.cpp source\main.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I./ /I./include/ /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"obj\\" /Fd"obj\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt SteeringBehavior.cpp source\main.cpp
          main.cpp
      1>c:\users\wade.gushikuma\documents\github\steering_behaviors\source\main.cpp(25): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\wade.gushikuma\documents\github\steering_behaviors\source\main.cpp(40): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\wade.gushikuma\documents\github\steering_behaviors\source\main.cpp(45): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>c:\users\wade.gushikuma\documents\github\steering_behaviors\source\main.cpp(52): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
+     1>c:\users\wade.gushikuma\documents\github\steering_behaviors\source\main.cpp(42): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\wade.gushikuma\documents\github\steering_behaviors\source\main.cpp(47): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>c:\users\wade.gushikuma\documents\github\steering_behaviors\source\main.cpp(54): warning C4244: 'argument' : conversion from 'time_t' to 'unsigned int', possible loss of data
          SteeringBehavior.cpp
      1>c:\users\wade.gushikuma\documents\github\steering_behaviors\steeringbehavior.cpp(127): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
      1>c:\users\wade.gushikuma\documents\github\steering_behaviors\steeringbehavior.cpp(130): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-         Generating Code...
-         Compiling...
-         Tank.cpp
          Generating Code...
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"bin\AIE Template_d.exe" /INCREMENTAL /NOLOGO /LIBPATH:./libs AIE_1st_Year_Framework_d.lib kernel32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"bin\AIE Template_d.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"bin\AIE Template_d.lib" /MACHINE:X86 obj\main.obj
@@ -51,4 +48,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.10
+Time Elapsed 00:00:01.68
