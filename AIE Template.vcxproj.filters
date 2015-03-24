@@ -32,5 +32,8 @@
     <ClInclude Include="SteeringBehavior.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Justin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
