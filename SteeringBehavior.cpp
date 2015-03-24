@@ -26,6 +26,36 @@ vec2 Seek::getForce(AITank* target, AITank* owner)
 	if (owner->velocity.y > owner->maxVelocity.y)
 		owner->velocity.y = owner->maxVelocity.y;
 
+	
+	return steering;
+}
+
+vec2 Pursue::getForce(AITank* target, AITank* owner)
+{
+	//	get direction to target and normalize
+	vec2 targetVelocity = glm::normalize((target->position + target->velocity - owner->position));
+	targetVelocity *= owner->maxVelocity;	//	resize to match velocity
+
+	//	where to point so not immediately to target
+	vec2 steering = targetVelocity - owner->velocity;
+
+	//	making sure ai doesnt go over max velocity
+	if (steering[0] > owner->MAX_FORCE[0])
+		steering[0] = owner->MAX_FORCE[0];
+	if (steering[1] > owner->MAX_FORCE[1])
+		steering[1] = owner->MAX_FORCE[1];
+	if (steering[0] < owner->nMAX_FORCE[0])
+		steering[0] = owner->nMAX_FORCE[0];
+	if (steering[1] < owner->nMAX_FORCE[1])
+		steering[1] = owner->nMAX_FORCE[1];
+
+	owner->velocity += steering;
+
+	if (owner->velocity.x > owner->maxVelocity.x)
+		owner->velocity.x = owner->maxVelocity.x;
+	if (owner->velocity.y > owner->maxVelocity.y)
+		owner->velocity.y = owner->maxVelocity.y;
+
 
 	return steering;
 }
@@ -58,32 +88,13 @@ vec2 Flee::getForce(AITank* target, AITank* owner)
 	return steering;
 }
 
-vec2 Wander::getForce(AITank* p, AITank* owner)
+vec2 Evade::getForce(AITank* target, AITank* owner)
 {
-	//	set circle distance
-	vec2 wanderRad = normalize(owner->velocity);
-	wanderRad *= CIRCLE_DIST;
+	vec2 targetVelocity = glm::normalize((owner->position - target->position + target->velocity));
+	targetVelocity *= owner->maxVelocity;
 
-	//	calc random jitter vec
-	vec2 jitterVec;
-	int num = rand() % jitter;
-	num -= (jitter / 2);
-	jitterVec.x = num;
-	num = rand() % jitter;
-	num -= (jitter / 2);
-	jitterVec.y = num;
-
-	//	add jitter to circlevec
-	//circleTarget += jitterVec; 
-	//	add jitter to normalized vector
-	circleTarget = normalize(circleTarget) + jitterVec;
-	assert((float)circleTarget.x);
-	//	scale to radius
-	//circleTarget *= CIRCLE_RADIUS;
-
-	//	seek circleTarget
-	vec2 targetVelocity = circleTarget * owner->maxVelocity;
 	vec2 steering = targetVelocity - owner->velocity;
+
 	//	making sure ai doesnt go over max velocity
 	if (steering[0] > owner->MAX_FORCE[0])
 		steering[0] = owner->MAX_FORCE[0];
@@ -93,25 +104,154 @@ vec2 Wander::getForce(AITank* p, AITank* owner)
 		steering[0] = owner->nMAX_FORCE[0];
 	if (steering[1] < owner->nMAX_FORCE[1])
 		steering[1] = owner->nMAX_FORCE[1];
+
 	owner->velocity += steering;
-	//cout << this->circleTarget.x << ", " << this->circleTarget.y << endl;
+
 	if (owner->velocity.x > owner->maxVelocity.x)
 		owner->velocity.x = owner->maxVelocity.x;
 	if (owner->velocity.y > owner->maxVelocity.y)
 		owner->velocity.y = owner->maxVelocity.y;
 
-	//vec2 targetPos = normalize(circleTarget + wanderRad);
-	//	make starting vector = new vector
-	//owner->velocity = targetPos;
 
-	//cout << circleTarget.x << ", " << circleTarget.y << endl;
+	return steering;
+}
 
-	return{ 0, 0 };
+vec2 Wander::getForce(AITank* p, AITank* owner)
+{
+	vec2 red = owner->circleTarget;		// circle target has to be scaled to radius size first
+
+	//	calc random jitter vec from (0,0)
+	vec2 jitterVec;
+	int num = rand() % owner->jitter;	//	jitter = 10   for now
+	num -= (owner->jitter / 2);		//	num = -5 to 5
+	jitterVec.x = num;
+	num = rand() % owner->jitter;
+	num -= (owner->jitter / 2);
+	jitterVec.y = num;
+
+	red = red + jitterVec;		//	add 
+	red = normalize(red);		//	normalize
+	red.x *= owner->CIRCLE_RADIUS;		//	scale to circle radius
+	red.y *= owner->CIRCLE_RADIUS;
+	owner->circleTarget = red;
+
+	//	create wander radius
+	vec2 green = normalize(owner->velocity);	
+	green.x *= owner->CIRCLE_RADIUS;
+	green.y *= owner->CIRCLE_RADIUS;
+
+	vec2 target = owner->position + red + green;	//	seek position
+
+	//	seek to target
+	vec2 targetVelocity = glm::normalize((target - owner->position));
+	targetVelocity *= owner->maxVelocity;	//	resize to match velocity
+
+	vec2 steering = targetVelocity - owner->velocity;	//	where to point so not immediately to target
+
+	//	making sure ai doesnt go over max velocity
+	if (steering[0] > owner->MAX_FORCE[0])
+		steering[0] = owner->MAX_FORCE[0];
+	if (steering[1] > owner->MAX_FORCE[1])
+		steering[1] = owner->MAX_FORCE[1];
+	if (steering[0] < owner->nMAX_FORCE[0])
+		steering[0] = owner->nMAX_FORCE[0];
+	if (steering[1] < owner->nMAX_FORCE[1])
+		steering[1] = owner->nMAX_FORCE[1];
+
+	owner->velocity += steering;
+
+	if (owner->velocity.x > owner->maxVelocity.x)
+		owner->velocity.x = owner->maxVelocity.x;
+	if (owner->velocity.y > owner->maxVelocity.y)
+		owner->velocity.y = owner->maxVelocity.y;
+
+
+	return { 0, 0 };
 }
 
 void Wander::Reset(AITank *owner)
 {
 	owner->position = { 720 / 2, 720 / 2 };
 	owner->velocity = { 1, 0 };
-	//this->circleTarget = { CIRCLE_RADIUS, 0 };
+	owner->circleTarget = { owner->CIRCLE_RADIUS, 0 };
+}
+
+vec2 Allignment::getForce(AITank* leader, AITank* owner)
+{
+	/*vec2 v;
+	v.x /= this->neighbors;
+	v.y /= this->neighbors;*/
+
+	if (owner->inCircle)
+	{
+		if (this->flockVelocity.x == 0 || this->flockVelocity.y == 0)
+		{
+			return{ 0, 0 };
+		}
+
+		this->flockVelocity.x /= this->neighbors;
+		this->flockVelocity.y /= this->neighbors;
+		this->flockVelocity = normalize(this->flockVelocity);
+
+		//	where to point so not immediately to target
+
+
+		//	************* leader's velocity isn't correct: change in main **************
+		vec2 steering = leader->velocity - this->flockVelocity;
+
+
+		////	making sure ai doesnt go over max velocity
+		//if (steering[0] > owner->MAX_FORCE[0])
+		//	steering[0] = owner->MAX_FORCE[0];
+		//if (steering[1] > owner->MAX_FORCE[1])
+		//	steering[1] = owner->MAX_FORCE[1];
+		//if (steering[0] < owner->nMAX_FORCE[0])
+		//	steering[0] = owner->nMAX_FORCE[0];
+		//if (steering[1] < owner->nMAX_FORCE[1])
+		//	steering[1] = owner->nMAX_FORCE[1];
+
+		owner->velocity += steering;
+		//owner->velocity = normalize(owner->velocity);
+
+		if (owner->velocity.x > owner->maxVelocity.x)
+			owner->velocity.x = owner->maxVelocity.x;
+		if (owner->velocity.y > owner->maxVelocity.y)
+			owner->velocity.y = owner->maxVelocity.y;
+	}
+
+	//this->flockVelocity = { 0, 0 };
+
+	return{ 0, 0 };
+}
+
+void Allignment::GetNeighborCount(AITank* leader, AITank* p_TankList[])
+{
+	this->flockVelocity = { 0, 0 };
+	int neighborCount = 0;
+	int i = 0;
+	while (i < 10)
+	{
+		vec2 distanceVec;
+		distanceVec = leader->position - p_TankList[i]->position;	
+		distanceVec.x = abs(distanceVec.x);
+		distanceVec.y = abs(distanceVec.y);
+
+		float distance;
+		//	find distance from leader: pythag theorem
+		distance = sqrt((distanceVec.x * distanceVec.x) + (distanceVec.y * distanceVec.y));
+
+		if (distance < leader->flockRadius)		//	if in radius
+		{
+			//	add ai's velocity to total velocity
+			this->flockVelocity += p_TankList[i]->velocity;
+			p_TankList[i]->inCircle = true;
+
+			//	increment num of agents in radius
+			neighborCount++;
+		}
+		else
+			p_TankList[i]->inCircle = false;
+		i++;
+	}
+	this->neighbors = neighborCount;
 }
