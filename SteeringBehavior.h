@@ -68,34 +68,39 @@ public:
 
 	std::vector<AITank*> tankList;
 
-	vec2 getForce(AITank* target, AITank* owner);
-	void GetNeighborCount(AITank* leader, AITank *p_TankList[]);
+	virtual vec2 getForce(AITank* target, AITank* owner){ return{ 0, 0 };};
+	virtual void GetNeighborCount(AITank* leader, AITank *p_TankList[]){};
+
+	vec2 GetAllignment();
+	void GetNeighbors();
+
+	void Draw();
 };
 
-class Allignment : public Flocking
-{
-public:
-	Allignment(){};
-
-	vec2 flockVelocity;
-	int neighbors;
-	float allignRadius = 100.0f;
-
-	vec2 getForce(AITank* target, AITank* owner);
-	void GetNeighborCount(AITank* leader, AITank *p_TankList[]);
-};
-
-class Cohesion : public Flocking
-{
-public:
-	Cohesion(){};
-
-	vec2 flockPos;
-	int neighbors;
-	float cohRadius = 400.0f;
-
-	vec2 getForce(AITank* target, AITank* owner);
-	void GetNeighborCount(AITank* leader, AITank *p_TankList[]);
-};
+//class Allignment : public Flocking
+//{
+//public:
+//	Allignment(){};
+//
+//	vec2 flockVelocity;
+//	int neighbors;
+//	float allignRadius = 100.0f;
+//
+//	vec2 getForce(AITank* target, AITank* owner);
+//	void GetNeighborCount(AITank* leader, AITank *p_TankList[]);
+//};
+//
+//class Cohesion : public Flocking
+//{
+//public:
+//	Cohesion(){};
+//
+//	vec2 flockPos;
+//	int neighbors;
+//	float cohRadius = 400.0f;
+//
+//	vec2 getForce(AITank* target, AITank* owner);
+//	void GetNeighborCount(AITank* leader, AITank *p_TankList[]);
+//};
 
 #endif

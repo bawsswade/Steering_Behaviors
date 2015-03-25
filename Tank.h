@@ -15,14 +15,14 @@ public:
 	{
 		this->velocity = { 0.1f, 1.0f };
 	};
-	//mat3 position;
+	
 	unsigned int id;
 	vec2 position;
 	vec2 velocity = { 1.0f, 0.0f };		//	current velocity
 	vec2 maxVelocity = { 100.0f, 100.0f };
 	const vec2 MAX_FORCE = { .2, .2 };
 	const vec2 nMAX_FORCE = { -.2, -.2 };
-	float speed = 50;
+	float speed = 10;
 
 	//	for wander
 	const int CIRCLE_DIST = 10;
@@ -31,12 +31,11 @@ public:
 	const int jitter = 100;					//	vector off of circle target
 
 	//	for flocking
-	//float flockRadius = 100.0f;
-	bool inAllignCircle = false;
-	bool inCohCircle = false;
-	//int neighborhood;
+	int allignNeighbCount = 0;
+	float allignRadius = 200.0f;
+	vec2 allignTotalVel = { 0, 0 };
 
-	virtual void Update(float deltaTime, vec2 move){};
+	virtual void Update(float deltaTime){};
 	~Tank(){};
 };
 
@@ -50,7 +49,7 @@ public:
 	};
 	//SteeringBehavior *behavior;	//	each ai tank has its own seek
 	
-	void Update(float deltaTime, vec2 move);
+	void Update(float deltaTime);
 };
 
 #endif

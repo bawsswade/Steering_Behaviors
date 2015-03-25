@@ -4,7 +4,7 @@
 
 using std::cout;
 
-void AITank::Update(float vel, vec2 dirMove)
+void AITank::Update(float vel)
 {
 	//this->position += (dirMove * vel);
 

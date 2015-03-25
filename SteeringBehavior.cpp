@@ -188,140 +188,190 @@ Flocking::Flocking(int num)
 	for (int i = 0; i < num; i++)
 	{
 		AITank* tank = new AITank;
-		std::vector<AITank*>::iterator it;
-		it = this->tankList.begin();
-		it = this->tankList.insert(it, tank);
+		tank->position = { i, i };
+		tank->id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
+		tankList.push_back(tank);
+	}
+}
+
+void Flocking::Draw()
+{
+	std::vector<AITank*>::iterator it;
+	it = this->tankList.begin();
+	while (it != tankList.end())
+	{
+		DrawSprite((*it)->id);
 		it++;
 	}
 }
 
-
-vec2 Allignment::getForce(AITank* leader, AITank* owner)
+vec2 Flocking::GetAllignment()
 {
-	/*vec2 v;
-	v.x /= this->neighbors;
-	v.y /= this->neighbors;*/
-
-	if (owner->inAllignCircle)
+	std::vector<AITank*>::iterator it;
+	it = this->tankList.begin();
+	vec2 temp;
+	while (it != tankList.end())
 	{
-		if (this->flockVelocity.x == 0 || this->flockVelocity.y == 0)
-		{
-			return{ 0, 0 };
-		}
-
-		this->flockVelocity.x /= this->neighbors;
-		this->flockVelocity.y /= this->neighbors;
-		this->flockVelocity = normalize(this->flockVelocity);
-
-		//	************* leader's velocity isn't correct: change in main **************
-		vec2 steering = leader->velocity - this->flockVelocity;
-
-		owner->velocity += steering;
-		//owner->velocity = normalize(owner->velocity);
-
-		if (owner->velocity.x > owner->maxVelocity.x)
-			owner->velocity.x = owner->maxVelocity.x;
-		if (owner->velocity.y > owner->maxVelocity.y)
-			owner->velocity.y = owner->maxVelocity.y;
+		temp.x = (*it)->allignTotalVel.x / (*it)->allignNeighbCount;
+		temp.y =(*it)->allignTotalVel.y / (*it)->allignNeighbCount;
+		it++;
 	}
-	return{ 0, 0 };
+	return normalize(temp);
 }
 
-void Allignment::GetNeighborCount(AITank* leader, AITank* p_TankList[])
+void Flocking::GetNeighbors()
 {
-	this->flockVelocity = { 0, 0 };
-	int neighborCount = 0;
-	int i = 0;
-	while (i < 10)
+	std::vector<AITank*>::iterator it;
+	it = this->tankList.begin();
+	while (it != tankList.end())
 	{
-		vec2 distanceVec;
-		distanceVec = leader->position - p_TankList[i]->position;	
-		distanceVec.x = abs(distanceVec.x);
-		distanceVec.y = abs(distanceVec.y);
-
-		float distance;
-		//	find distance from leader: pythag theorem
-		distance = sqrt((distanceVec.x * distanceVec.x) + (distanceVec.y * distanceVec.y));
-
-		if (distance < this->allignRadius)		//	if in radius
+		std::vector<AITank*>::iterator i;
+		i = this->tankList.begin();
+		while (i != tankList.end())
 		{
-			//	add ai's velocity to total velocity
-			this->flockVelocity += p_TankList[i]->velocity;
-			p_TankList[i]->inAllignCircle = true;
-
-			//	increment num of agents in radius
-			neighborCount++;
+			vec2 temp = { 0, 0 };
+			if (it != i)
+			{
+				if ((sqrt((*it)->position.x * (*it)->position.x + (*i)->position.y * (*it)->position.y)) < (*it)->allignRadius)
+				{
+					temp.x += (*it)->velocity.x;
+					temp.y += (*it)->velocity.y;
+					i++;
+				}
+			}
+			(*it)->allignTotalVel = temp;
 		}
-		else
-			p_TankList[i]->inAllignCircle = false;
-		i++;
+		it++;
 	}
-	this->neighbors = neighborCount;
 }
 
-vec2 Cohesion::getForce(AITank* leader, AITank* owner)
-{
-	if (owner->inCohCircle)
-	{
-		if (this->flockPos.x == 0 || this->flockPos.y == 0)
-		{
-			return{ 0, 0 };
-		}
-
-		this->flockPos.x /= this->neighbors;
-		this->flockPos.y /= this->neighbors;
-		//this->flockPos = normalize(this->flockPos);
-
-		if (this->neighbors > 2)
-		{
-			//	************* leader's velocity isn't correct: change in main **************
-			vec2 targetVelocity = normalize(this->flockPos - owner->position);
-			targetVelocity *= owner->maxVelocity;	//	resize to match velocity
-
-			//	where to point so not immediately to target
-			vec2 steering = targetVelocity - owner->velocity;
-
-			owner->velocity += steering;
-			//owner->velocity = normalize(owner->velocity);
-
-			if (owner->velocity.x > owner->maxVelocity.x)
-				owner->velocity.x = owner->maxVelocity.x;
-			if (owner->velocity.y > owner->maxVelocity.y)
-				owner->velocity.y = owner->maxVelocity.y;
-		}
-	}
-	
-	return{ 0, 0 };
-}
-
-void Cohesion::GetNeighborCount(AITank* leader, AITank* p_TankList[])
-{
-	this->flockPos = { 0, 0 };
-	int neighborCount = 0;
-	int i = 0;
-	while (i < 2)
-	{
-		vec2 distanceVec;
-		distanceVec = leader->position - p_TankList[i]->position;
-		distanceVec.x = abs(distanceVec.x);
-		distanceVec.y = abs(distanceVec.y);
-
-		float distance;
-		//	find distance from leader: pythag theorem
-		distance = sqrt((distanceVec.x * distanceVec.x) + (distanceVec.y * distanceVec.y));
-
-		if (distance < this->cohRadius)		//	if in radius
-		{
-			//	add ai's velocity to total velocity
-			this->flockPos += p_TankList[i]->position;
-			p_TankList[i]->inCohCircle = true;
-
-			//	increment num of agents in radius
-			neighborCount++;
-		}
-		else
-			p_TankList[i]->inCohCircle = false;
-		i++;
-	}
-	this->neighbors = neighborCount;
-}
+//
+//vec2 Allignment::getForce(AITank* leader, AITank* owner)
+//{
+//	/*vec2 v;
+//	v.x /= this->neighbors;
+//	v.y /= this->neighbors;*/
+//
+//	if (owner->inAllignCircle)
+//	{
+//		if (this->flockVelocity.x == 0 || this->flockVelocity.y == 0)
+//		{
+//			return{ 0, 0 };
+//		}
+//
+//		this->flockVelocity.x /= this->neighbors;
+//		this->flockVelocity.y /= this->neighbors;
+//		this->flockVelocity = normalize(this->flockVelocity);
+//
+//		//	************* leader's velocity isn't correct: change in main **************
+//		vec2 steering = leader->velocity - this->flockVelocity;
+//
+//		owner->velocity += steering;
+//		//owner->velocity = normalize(owner->velocity);
+//
+//		if (owner->velocity.x > owner->maxVelocity.x)
+//			owner->velocity.x = owner->maxVelocity.x;
+//		if (owner->velocity.y > owner->maxVelocity.y)
+//			owner->velocity.y = owner->maxVelocity.y;
+//	}
+//	return{ 0, 0 };
+//}
+//
+//void Allignment::GetNeighborCount(AITank* leader, AITank* p_TankList[])
+//{
+//	this->flockVelocity = { 0, 0 };
+//	int neighborCount = 0;
+//	int i = 0;
+//	while (i < 10)
+//	{
+//		vec2 distanceVec;
+//		distanceVec = leader->position - p_TankList[i]->position;	
+//		distanceVec.x = abs(distanceVec.x);
+//		distanceVec.y = abs(distanceVec.y);
+//
+//		float distance;
+//		//	find distance from leader: pythag theorem
+//		distance = sqrt((distanceVec.x * distanceVec.x) + (distanceVec.y * distanceVec.y));
+//
+//		if (distance < this->allignRadius)		//	if in radius
+//		{
+//			//	add ai's velocity to total velocity
+//			this->flockVelocity += p_TankList[i]->velocity;
+//			p_TankList[i]->inAllignCircle = true;
+//
+//			//	increment num of agents in radius
+//			neighborCount++;
+//		}
+//		else
+//			p_TankList[i]->inAllignCircle = false;
+//		i++;
+//	}
+//	this->neighbors = neighborCount;
+//}
+//
+//vec2 Cohesion::getForce(AITank* leader, AITank* owner)
+//{
+//	if (owner->inCohCircle)
+//	{
+//		if (this->flockPos.x == 0 || this->flockPos.y == 0)
+//		{
+//			return{ 0, 0 };
+//		}
+//
+//		this->flockPos.x /= this->neighbors;
+//		this->flockPos.y /= this->neighbors;
+//		//this->flockPos = normalize(this->flockPos);
+//
+//		if (this->neighbors > 2)
+//		{
+//			//	************* leader's velocity isn't correct: change in main **************
+//			vec2 targetVelocity = normalize(this->flockPos - owner->position);
+//			targetVelocity *= owner->maxVelocity;	//	resize to match velocity
+//
+//			//	where to point so not immediately to target
+//			vec2 steering = targetVelocity - owner->velocity;
+//
+//			owner->velocity += steering;
+//			//owner->velocity = normalize(owner->velocity);
+//
+//			if (owner->velocity.x > owner->maxVelocity.x)
+//				owner->velocity.x = owner->maxVelocity.x;
+//			if (owner->velocity.y > owner->maxVelocity.y)
+//				owner->velocity.y = owner->maxVelocity.y;
+//		}
+//	}
+//	
+//	return{ 0, 0 };
+//}
+//
+//void Cohesion::GetNeighborCount(AITank* leader, AITank* p_TankList[])
+//{
+//	this->flockPos = { 0, 0 };
+//	int neighborCount = 0;
+//	int i = 0;
+//	while (i < 2)
+//	{
+//		vec2 distanceVec;
+//		distanceVec = leader->position - p_TankList[i]->position;
+//		distanceVec.x = abs(distanceVec.x);
+//		distanceVec.y = abs(distanceVec.y);
+//
+//		float distance;
+//		//	find distance from leader: pythag theorem
+//		distance = sqrt((distanceVec.x * distanceVec.x) + (distanceVec.y * distanceVec.y));
+//
+//		if (distance < this->cohRadius)		//	if in radius
+//		{
+//			//	add ai's velocity to total velocity
+//			this->flockPos += p_TankList[i]->position;
+//			p_TankList[i]->inCohCircle = true;
+//
+//			//	increment num of agents in radius
+//			neighborCount++;
+//		}
+//		else
+//			p_TankList[i]->inCohCircle = false;
+//		i++;
+//	}
+//	this->neighbors = neighborCount;
+//}
