@@ -25,7 +25,6 @@ vec2 Seek::getForce(AITank* target, AITank* owner)
 		owner->velocity.x = owner->maxVelocity.x;
 	if (owner->velocity.y > owner->maxVelocity.y)
 		owner->velocity.y = owner->maxVelocity.y;
-
 	
 	return steering;
 }
@@ -188,9 +187,32 @@ Flocking::Flocking(int num)
 	for (int i = 0; i < num; i++)
 	{
 		AITank* tank = new AITank;
-		tank->position = { i, i };
+		tank->id = i;
+		tank->position = { 360 + 1, 360 + 1 };
 		tank->id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
 		tankList.push_back(tank);
+	}
+}
+
+void Flocking::Update(float deltaT)
+{
+	std::vector<AITank*>::iterator it;
+	it = this->tankList.begin();
+	while (it != tankList.end())
+	{
+		this->GetAllignment();		//	works 
+		//this->GetCohesion();		//	works
+		this->GetSeperation();		//	think it works
+
+		if ((*it)->position.x > 720 || (*it)->position.x < 0)
+			//(*it)->position.x = 360;
+			(*it)->velocity.x *= -1;
+		if ((*it)->position.y > 720 || (*it)->position.y < 0)
+			//(*it)->position.y = 360;
+			(*it)->velocity.y *= -1;
+
+		(*it)->Update(deltaT);
+		it++;
 	}
 }
 
@@ -200,7 +222,9 @@ void Flocking::Draw()
 	it = this->tankList.begin();
 	while (it != tankList.end())
 	{
+		MoveSprite((*it)->id, (*it)->position.x, (*it)->position.y);
 		DrawSprite((*it)->id);
+		//cout << (*it)->position.x << ", " << (*it)->position.y << endl;
 		it++;
 	}
 }
@@ -212,38 +236,199 @@ vec2 Flocking::GetAllignment()
 	vec2 temp;
 	while (it != tankList.end())
 	{
+		if ((*it)->allignNeighbCount < 1)
+		{
+			it++;
+			continue;
+		}
 		temp.x = (*it)->allignTotalVel.x / (*it)->allignNeighbCount;
 		temp.y =(*it)->allignTotalVel.y / (*it)->allignNeighbCount;
+		vec2 targetVel = temp + (*it)->velocity;
+		targetVel.x /= 2;
+		targetVel.y /= 2;
+		vec2 force = normalize(targetVel);
+		force.x *= (*it)->maxVelocity.x;
+		force.y *= (*it)->maxVelocity.y;
+		vec2 steering = force - (*it)->velocity;
+
+		vec2 weight = { 2, 2 };			// doesnt really wortk well
+		steering.x /= weight.x;
+		steering.y /= weight.y;
+
+		//	making sure ai doesnt go over max velocity
+		if (steering[0] > (*it)->MAX_FORCE[0])
+			steering[0] = (*it)->MAX_FORCE[0];
+		if (steering[1] > (*it)->MAX_FORCE[1])
+			steering[1] = (*it)->MAX_FORCE[1];
+		if (steering[0] < (*it)->nMAX_FORCE[0])
+			steering[0] = (*it)->nMAX_FORCE[0];
+		if (steering[1] < (*it)->nMAX_FORCE[1])
+			steering[1] = (*it)->nMAX_FORCE[1];
+
+		(*it)->velocity += steering;
+
 		it++;
 	}
-	return normalize(temp);
+	return { 0, 0 };
+}
+
+vec2 Flocking::GetCohesion()
+{
+	std::vector<AITank*>::iterator it;
+	it = this->tankList.begin();
+	vec2 temp;
+	while (it != tankList.end())
+	{
+		if ((*it)->cohesNeighbCount < 1)
+		{
+			it++;
+			continue;
+		}
+		temp.x = (*it)->cohesTotalPos.x / (*it)->cohesNeighbCount;
+		temp.y = (*it)->cohesTotalPos.y / (*it)->cohesNeighbCount;
+
+		//********************************//
+		//	temporary fix: when blah is (0,0), shit gets fucked up
+		//********************************//
+		vec2 blah = temp - (*it)->position;
+		vec2 blah2 = { 0, 0 };
+		if (blah == blah2)
+			blah = { 1, 1 };
+		//********************************//
+
+		vec2 targetVelocity = glm::normalize(blah);
+		targetVelocity *= (*it)->maxVelocity;
+		vec2 steering = targetVelocity - (*it)->velocity;
+
+		vec2 weight = { 100000, 100000 };
+		steering.x /= weight.x;
+		steering.y /= weight.y;
+
+		//	making sure ai doesnt go over max velocity
+		if (steering[0] > (*it)->MAX_FORCE[0])
+			steering[0] = (*it)->MAX_FORCE[0];
+		if (steering[1] > (*it)->MAX_FORCE[1])
+			steering[1] = (*it)->MAX_FORCE[1];
+		if (steering[0] < (*it)->nMAX_FORCE[0])
+			steering[0] = (*it)->nMAX_FORCE[0];
+		if (steering[1] < (*it)->nMAX_FORCE[1])
+			steering[1] = (*it)->nMAX_FORCE[1];
+
+		(*it)->velocity += steering;
+		it++;
+	}
+	return { 0, 0 };
+}
+
+vec2 Flocking::GetSeperation()
+{
+	std::vector<AITank*>::iterator it;
+	it = this->tankList.begin();
+	vec2 temp;
+	while (it != tankList.end())
+	{
+		if ((*it)->sepNeighbCount < 1)
+		{
+			it++;
+			continue;
+		}
+		temp.x = (*it)->sepTotalPos.x / (*it)->sepNeighbCount;
+		temp.y = (*it)->sepTotalPos.y / (*it)->sepNeighbCount;
+
+		//********************************//
+		//	temporary fix: when blah is (0,0), shit gets fucked up
+		//********************************//
+		vec2 blah = (*it)->position - temp;
+		vec2 blah2 = { 0, 0 };
+		if (blah == blah2)
+			blah = { 1, 1 };
+		//********************************//
+
+		vec2 targetVelocity = glm::normalize(blah);
+		targetVelocity *= (*it)->maxVelocity;
+		vec2 steering = targetVelocity - (*it)->velocity;
+
+		//	making sure ai doesnt go over max velocity
+		if (steering[0] > (*it)->MAX_FORCE[0])
+			steering[0] = (*it)->MAX_FORCE[0];
+		if (steering[1] > (*it)->MAX_FORCE[1])
+			steering[1] = (*it)->MAX_FORCE[1];
+		if (steering[0] < (*it)->nMAX_FORCE[0])
+			steering[0] = (*it)->nMAX_FORCE[0];
+		if (steering[1] < (*it)->nMAX_FORCE[1])
+			steering[1] = (*it)->nMAX_FORCE[1];
+
+		(*it)->velocity += steering;
+		it++;
+	}
+	return { 0, 0 };
 }
 
 void Flocking::GetNeighbors()
 {
 	std::vector<AITank*>::iterator it;
 	it = this->tankList.begin();
+	vec2 numAVel, numPos, numSPos;
+	int aCount, cCount, sCount;
+	//	loop through all tanks
 	while (it != tankList.end())
 	{
 		std::vector<AITank*>::iterator i;
 		i = this->tankList.begin();
+
+		numAVel = { 0, 0 };
+		numPos = { 0, 0 };
+		numSPos = { 0, 0 };
+		aCount = 0;
+		cCount = 0;
+		sCount = 0;
+
+		//	check against all other tanks
 		while (i != tankList.end())
 		{
-			vec2 temp = { 0, 0 };
 			if (it != i)
 			{
-				if ((sqrt((*it)->position.x * (*it)->position.x + (*i)->position.y * (*it)->position.y)) < (*it)->allignRadius)
+				//	if in allignment radius, add to total velocity numVel
+				if ((sqrt((*it)->position.x * (*it)->position.x + (*i)->position.y * (*i)->position.y)) < (*it)->allignRadius)
 				{
-					temp.x += (*it)->velocity.x;
-					temp.y += (*it)->velocity.y;
-					i++;
+					//	add to toatal velocity vec
+					numAVel.x += (*i)->velocity.x;
+					numAVel.y += (*i)->velocity.y;
+					//	increase allignment neighbor count
+					aCount++;
+				}
+				//	if in cohesion radius, add to total position numPos
+				if ((sqrt((*it)->position.x * (*it)->position.x + (*i)->position.y * (*i)->position.y)) < (*it)->cohesRadius)
+				{
+					//	add to total position vec
+					numPos.x += (*i)->position.x;
+					numPos.y += (*i)->position.y;
+					//	increase cohesion neighbor count
+					cCount++;
+				}
+				//	if in seperation radius, add to count++
+				if ((sqrt((*it)->position.x * (*it)->position.x + (*i)->position.y * (*i)->position.y)) < (*it)->sepRadius)
+				{
+					//add to total velocity vec
+					numSPos.x += (*i)->position.x;
+					numSPos.y += (*i)->position.y;
+					//	increase seperation neighbor count
+					sCount++;
 				}
 			}
-			(*it)->allignTotalVel = temp;
+			i++;
 		}
+		(*it)->allignTotalVel = numAVel;
+		(*it)->cohesTotalPos = numPos;
+		(*it)->sepTotalPos = numSPos;
+		(*it)->allignNeighbCount = aCount;
+		(*it)->cohesNeighbCount = cCount;
+		(*it)->sepNeighbCount = sCount;
 		it++;
 	}
 }
+
+
 
 //
 //vec2 Allignment::getForce(AITank* leader, AITank* owner)

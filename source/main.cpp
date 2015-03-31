@@ -36,9 +36,7 @@ int main( int argc, char* argv[] )
 	SteeringBehavior* p_pursue = new Pursue;
 	SteeringBehavior* p_evade = new Evade;
 	SteeringBehavior* p_flock = new Flocking;
-	Flocking f(100);
-	/*Flocking* p_allign = new Allignment; 
-	Flocking* p_cohesion = new Cohesion;*/
+	Flocking f(10);
 
 	p1.id = CreateSprite("./images/circle.png", 20.0f, 20.0f, true);
 	p1.position = { SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 };
@@ -62,7 +60,7 @@ int main( int argc, char* argv[] )
 
 		DrawSprite(p1.id);
 		//DrawSprite(p2.id);
-		f.Draw();
+		//f.Draw();
 
 		if (IsKeyDown('A'))
 		{
@@ -109,16 +107,31 @@ int main( int argc, char* argv[] )
 		//	//cout << arr_tank[i]->velocity.x << ", " << arr_tank[i]->velocity.y << endl;
 		//}
 
+		std::vector<AITank*>::iterator it;
+		it = f.tankList.begin();
+		
+
+		f.GetNeighbors();
+		
+		while (it != f.tankList.end())
+		{
+			p_wander->getForce(&p1, (*it));
+			p_seek->getForce(&p1, (*it));
+			it++;
+		}
+		f.Update(deltaTime);
+		f.Draw();
+
 		//p_wander->getForce(&p1, &p2);
-		p_seek->getForce(&p1, &p2);
+		//p_seek->getForce(&p1, &p2);
 		if (p2.position.x > 720.0f || p2.position.x <= 0 || p2.position.y > 720.0f || p2.position.y <= 0)
 		{
 			p2.position = { 720 / 2, 720 / 2 };
 			p2.velocity = { 1, 0 };
 		}
 
-		p2.Update(deltaTime);
-		MoveSprite(p2.id, p2.position.x, p2.position.y);
+		//p2.Update(deltaTime);
+		//MoveSprite(p2.id, p2.position.x, p2.position.y);
 		MoveSprite(p1.id, p1.position.x, p1.position.y);
 
 	} while(FrameworkUpdate() == false);

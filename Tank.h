@@ -20,8 +20,8 @@ public:
 	vec2 position;
 	vec2 velocity = { 1.0f, 0.0f };		//	current velocity
 	vec2 maxVelocity = { 100.0f, 100.0f };
-	const vec2 MAX_FORCE = { .2, .2 };
-	const vec2 nMAX_FORCE = { -.2, -.2 };
+	const vec2 MAX_FORCE = { .1, .1 };
+	const vec2 nMAX_FORCE = { -.1, -.1 };
 	float speed = 10;
 
 	//	for wander
@@ -32,8 +32,14 @@ public:
 
 	//	for flocking
 	int allignNeighbCount = 0;
-	float allignRadius = 200.0f;
+	float allignRadius = 50.0f;
 	vec2 allignTotalVel = { 0, 0 };
+	int cohesNeighbCount = 500.0f;
+	float cohesRadius = 10.0f;
+	vec2 cohesTotalPos = { 0, 0 };
+	int sepNeighbCount = 0;
+	float sepRadius = 200.0f;
+	vec2 sepTotalPos = { 0, 0 };
 
 	virtual void Update(float deltaTime){};
 	~Tank(){};

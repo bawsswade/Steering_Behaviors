@@ -72,7 +72,10 @@ public:
 	virtual void GetNeighborCount(AITank* leader, AITank *p_TankList[]){};
 
 	vec2 GetAllignment();
+	vec2 GetCohesion();
+	vec2 GetSeperation();
 	void GetNeighbors();
+	void Update(float deltaT);
 
 	void Draw();
 };

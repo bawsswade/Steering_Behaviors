@@ -6,10 +6,6 @@ using std::cout;
 
 void AITank::Update(float vel)
 {
-	//this->position += (dirMove * vel);
-
-	//std::cout << glm::to_string(dirMove) << "\n";
-
 	this->position.x += (this->velocity.x * vel * speed);
 	this->position.y += (this->velocity.y * vel * speed);
 
