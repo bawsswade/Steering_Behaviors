@@ -112,14 +112,13 @@ int main( int argc, char* argv[] )
 		
 
 		f.GetNeighbors();
-		
+		f.Update(deltaTime);
 		while (it != f.tankList.end())
 		{
 			p_wander->getForce(&p1, (*it));
-			p_seek->getForce(&p1, (*it));
+			//p_seek->getForce(&p1, (*it));
 			it++;
 		}
-		f.Update(deltaTime);
 		f.Draw();
 
 		//p_wander->getForce(&p1, &p2);

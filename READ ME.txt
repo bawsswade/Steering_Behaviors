@@ -1,0 +1,39 @@
+********************
+Steering Behaviors 
+********************
+	makes use of steering behaviors 
+		- seek
+		- flee
+		- wander
+		- pursue
+		- evade
+		- flocking: allignment, cohesion, seperation
+
+////////////////////////////////////////////////////////////////
+
+1. create steering behavior
+	seek;
+
+2. create tanks
+	AITank p1, p2;
+
+3. use steering behavior
+	seek.getForce(&p1, &p2);
+	// takes in the pointer of the tank
+
+4. flocking is different: uses three different behaviors: allignment, cohesion and seperation
+
+
+	// create flock
+	flocking(# of objects in the flock) flock;	
+
+	// get neighbors
+	flock.GetNeightbors();
+
+	// update the flock with delta time
+	flock.Update(deltaTime);
+
+	// draw
+	flock.Draw();
+
+	

@@ -32,13 +32,13 @@ public:
 
 	//	for flocking
 	int allignNeighbCount = 0;
-	float allignRadius = 50.0f;
+	float allignRadius = 200.0f;
 	vec2 allignTotalVel = { 0, 0 };
 	int cohesNeighbCount = 500.0f;
-	float cohesRadius = 10.0f;
+	float cohesRadius = 500.0f;
 	vec2 cohesTotalPos = { 0, 0 };
 	int sepNeighbCount = 0;
-	float sepRadius = 200.0f;
+	float sepRadius = 100.0f;
 	vec2 sepTotalPos = { 0, 0 };
 
 	virtual void Update(float deltaTime){};

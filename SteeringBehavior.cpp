@@ -201,7 +201,7 @@ void Flocking::Update(float deltaT)
 	while (it != tankList.end())
 	{
 		this->GetAllignment();		//	works 
-		//this->GetCohesion();		//	works
+		this->GetCohesion();		//	works
 		this->GetSeperation();		//	think it works
 
 		if ((*it)->position.x > 720 || (*it)->position.x < 0)
@@ -251,7 +251,7 @@ vec2 Flocking::GetAllignment()
 		force.y *= (*it)->maxVelocity.y;
 		vec2 steering = force - (*it)->velocity;
 
-		vec2 weight = { 2, 2 };			// doesnt really wortk well
+		vec2 weight = { 10, 10 };			// doesnt really wortk well
 		steering.x /= weight.x;
 		steering.y /= weight.y;
 
@@ -300,19 +300,19 @@ vec2 Flocking::GetCohesion()
 		targetVelocity *= (*it)->maxVelocity;
 		vec2 steering = targetVelocity - (*it)->velocity;
 
-		vec2 weight = { 100000, 100000 };
+		vec2 weight = { 1.0f, 1.0f };
 		steering.x /= weight.x;
 		steering.y /= weight.y;
 
 		//	making sure ai doesnt go over max velocity
-		if (steering[0] > (*it)->MAX_FORCE[0])
-			steering[0] = (*it)->MAX_FORCE[0];
-		if (steering[1] > (*it)->MAX_FORCE[1])
-			steering[1] = (*it)->MAX_FORCE[1];
-		if (steering[0] < (*it)->nMAX_FORCE[0])
-			steering[0] = (*it)->nMAX_FORCE[0];
-		if (steering[1] < (*it)->nMAX_FORCE[1])
-			steering[1] = (*it)->nMAX_FORCE[1];
+		if (steering[0] > .01f)
+			steering[0] = .01f;
+		if (steering[1] > .01f)
+			steering[1] = .01f;
+		if (steering[0] < .01f)
+			steering[0] = .01f;
+		if (steering[1] < .01f)
+			steering[1] = .01f;
 
 		(*it)->velocity += steering;
 		it++;
@@ -348,15 +348,19 @@ vec2 Flocking::GetSeperation()
 		targetVelocity *= (*it)->maxVelocity;
 		vec2 steering = targetVelocity - (*it)->velocity;
 
+		vec2 weight = { 1, 1 };			// doesnt really wortk well
+		steering.x /= weight.x;
+		steering.y /= weight.y;
+
 		//	making sure ai doesnt go over max velocity
-		if (steering[0] > (*it)->MAX_FORCE[0])
-			steering[0] = (*it)->MAX_FORCE[0];
-		if (steering[1] > (*it)->MAX_FORCE[1])
-			steering[1] = (*it)->MAX_FORCE[1];
-		if (steering[0] < (*it)->nMAX_FORCE[0])
-			steering[0] = (*it)->nMAX_FORCE[0];
-		if (steering[1] < (*it)->nMAX_FORCE[1])
-			steering[1] = (*it)->nMAX_FORCE[1];
+		if (steering[0] > 1.0f)
+			steering[0] = 1.0f;
+		if (steering[1] > 1.0f)
+			steering[1] = 1.0f;
+		if (steering[0] < -1.0f)
+			steering[0] = -1.0f;
+		if (steering[1] < -1.0f)
+			steering[1] = -1.0f;
 
 		(*it)->velocity += steering;
 		it++;
